@@ -153,6 +153,10 @@
     <form>
         <label for="psn">Total number of semester results published yet:</label>
         <input type="number" id="psn" name="psn" placeholder="Enter a digit (1-7)"><br><br>
+		
+		 <label for="cgp">Enter Your Current CGPA:</label>
+        <input type="number" id="cgp" name="cgp" placeholder="Enter CGPA "><br><br>
+		
         <button type="button" onclick="addSemesters()">Press Here</button><br><br>
         <div id="semester_cgpa"></div><br>
         
@@ -160,72 +164,83 @@
         <div id="result"></div>
     </form>
 
-    <script>
-        function addSemesters() {
-            var psn = parseInt(document.getElementById("psn").value);
-            var container = document.getElementById("semester_cgpa");
-            container.innerHTML = ""; // Clear previous fields
-                if(psn>7 || psn<=0) 
-				{  return;}
-            for (var i = 0; i < psn; i++) {
-                var label = document.createElement("label");
-                label.textContent = "Enter CGPA of semester " + (i + 1) + ": ";
-                var input = document.createElement("input");
-                input.type = "number";
-                input.name = "cgpa[]";
-                input.required = true;
-                container.appendChild(label);
-                container.appendChild(input);
-                container.appendChild(document.createElement("br"));
+<script>
+    function addSemesters() {
+        var psn = parseInt(document.getElementById("psn").value);
+        var cgp = parseFloat(document.getElementById("cgp").value);
+        var container = document.getElementById("semester_cgpa");
+        container.innerHTML = ""; // Clear previous fields
+        if (psn > 7 || psn <= 0 || cgp<1 || cgp>4) {
+
+            return;
+        }
+        
+        for (var i = 0; i < psn; i++) {
+            var labelCredit = document.createElement("label");
+            labelCredit.textContent = "Enter Credit of semester " + (i + 1) + ": ";
+            var inputCredit = document.createElement("input");
+            inputCredit.type = "number";
+            inputCredit.name = "credit[]";
+            inputCredit.required = true;
+            container.appendChild(labelCredit);
+            container.appendChild(inputCredit);
+            container.appendChild(document.createElement("br"));
+        }
+        
+        var totalcLabel = document.createElement("label");
+        totalcLabel.textContent = "Enter Total Course Credit: ";
+        var inputTotalc = document.createElement("input");
+        inputTotalc.type = "number";
+        inputTotalc.name = "totalc[]";
+        inputTotalc.required = true;
+        container.appendChild(totalcLabel);
+        container.appendChild(inputTotalc);
+        container.appendChild(document.createElement("br"));
+    }
+
+    function calculate() {
+        var psn = parseInt(document.getElementById("psn").value);
+        var cgp = parseFloat(document.getElementById("cgp").value);
+        var v = [3, 3.25, 3.5, 3.75, 4.00];
+        var resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+        var tpscredit = 0;
+        
+        for (var i = 0; i < psn; i++) {
+            var credit = parseFloat(document.getElementsByName("credit[]")[i].value);
+            if (isNaN(credit)) {
+                var invalidParagraph = document.createElement("p");
+                invalidParagraph.textContent = "Invalid data. Please enter valid credit values.";
+                resultDiv.appendChild(invalidParagraph);
+                return;
+            }
+            tpscredit += credit;
+        }
+        
+        var totalc = parseFloat(document.getElementsByName("totalc[]")[0].value);
+        for (var i = 0; i < 5; i++) {
+            var ans = ((v[i] * totalc) - (cgp * tpscredit)) / (totalc - tpscredit);
+            if (ans <= 4 && ans>=2) {
+                var paragraph = document.createElement("p");
+                paragraph.textContent = "Goal CGPA " + v[i] + ", you should maintain the average of all the remaining semesters: " + ans.toFixed(3);
+                resultDiv.appendChild(paragraph);
+            } else {
+                var paragraph = document.createElement("p");
+                paragraph.textContent = "It isn't possible for you to obtain CGPA " + v[i];
+		
+                resultDiv.appendChild(paragraph);
+                break;
             }
         }
+        var temp = document.createElement("p");
+        temp.textContent = "Thank you. Stay with us.";
+        resultDiv.appendChild(temp);
+    }
+</script>
 
-        function calculate() {
-            var psn = parseInt(document.getElementById("psn").value);
-			
-            var tsn = 8;
-            var pts = 0;
-            var v = [3, 3.25, 3.5, 3.75, 4.00];
-            var resultDiv = document.getElementById("result");
-            resultDiv.innerHTML = "";
-			
-			
-            for (var i = 0; i < psn ; i++) {
-                var cgpa = parseFloat(document.getElementsByName("cgpa[]")[i].value);
-				if (cgpa<2 || cgpa>4 ) {
-				
-				
-				var invalidParagraph = document.createElement("p");
-				invalidParagraph.textContent = "Invalid data.Please enter CGPA between range (2.00-4.00).Thank You.Stay with us.";
-				
-				resultDiv.appendChild(invalidParagraph);
-				
-				return;
-				}
-				
-                pts += cgpa;
-            }
+</script>
 
 
-            for (var i = 0; i < 5; i++) {
-                var ans = ((v[i] * tsn) - pts) / (tsn - psn);
-                if (ans <= 4) {
-                    var paragraph = document.createElement("p");
-                    paragraph.textContent = "Goal CGPA " + v[i] + ", you should maintain next all semester's average: " + ans.toFixed(3);
-                    resultDiv.appendChild(paragraph);
-                } else {
-                    var paragraph = document.createElement("p");
-                    paragraph.textContent = "It isn't possible for you to obtain CGPA " + v[i];
-                    resultDiv.appendChild(paragraph);
-                    break;
-                }
-            }
-			var temp = document.createElement("p");
-				temp.textContent = "Thank You.Stay with us.";
-				resultDiv.appendChild(temp);
-			
-        }
-    </script>
 							</div>
 						
                             
